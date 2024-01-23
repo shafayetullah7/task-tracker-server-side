@@ -43,6 +43,7 @@ const userValidationSchema = z.object({
 
   phone: z
     .string({ invalid_type_error: "Phone number must be string" })
+    .max(15, "Phone number cannot be more than 15 characters")
     .optional(),
 
   gender: z.enum(Object.values(Tgender) as [string, ...string[]]),
@@ -59,8 +60,26 @@ const userValidationSchema = z.object({
     .optional(),
 });
 
-const createUserValidationSchema = userValidationSchema;
+const createUserValidationSchema = z.object({
+  body: userValidationSchema,
+});
+
+const loginUserValidationSchema = z.object({
+  body: z.object({
+    email: z
+      .string({
+        required_error: "Email is required",
+        invalid_type_error: "Email must be a string",
+      })
+      .email("Invalid email format"),
+    password: z.string({
+      required_error: "Password is required",
+      invalid_type_error: "Password must be a string",
+    }),
+  }),
+});
 
 export const userValidation = {
   createUserValidationSchema,
+  loginUserValidationSchema,
 };

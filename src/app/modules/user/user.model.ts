@@ -3,43 +3,50 @@ import { Tgender, Tuser } from "./user.interface";
 import bcrypt from "bcrypt";
 import config from "../../config";
 
-const userSchema = new mongoose.Schema<Tuser>({
-  firstname: {
-    type: String,
-    required: true,
-    min: 1,
-    max: 20,
+const userSchema = new mongoose.Schema<Tuser>(
+  {
+    firstname: {
+      type: String,
+      required: true,
+      min: 1,
+      max: 20,
+    },
+    lastname: {
+      type: String,
+      required: true,
+      min: 1,
+      max: 20,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    image: {
+      type: String,
+    },
+    phone: {
+      type: String,
+      unique: true,
+    },
+    gender: {
+      type: String,
+      enum: Object.values(Tgender),
+      required: true,
+    },
+    dob: {
+      type: String,
+    },
   },
-  lastname: {
-    type: String,
-    required: true,
-    min: 1,
-    max: 20,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  image: {
-    type: String,
-  },
-  phone: {
-    type: String,
-    unique: true,
-  },
-  gender: {
-    type: String,
-    enum: Object.values(Tgender),
-    required: true,
-  },
-  dob: {
-    type: String,
-  },
+  { timestamps: true }
+);
+
+userSchema.virtual("fullname").get(function () {
+  return `${this.firstname} ${this.lastname}`;
 });
 
 userSchema.pre<Tuser>("save", async function (next) {
@@ -49,7 +56,7 @@ userSchema.pre<Tuser>("save", async function (next) {
   try {
     this.password = await bcrypt.hash(
       this.password,
-      config.bcryptSaltRounds as string
+      Number(config.bcryptSaltRounds)
     );
     next();
   } catch (error) {
