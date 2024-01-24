@@ -46,3 +46,4 @@ Desktop.ini
 # Production build
 build/
 dist/
+.vercel
